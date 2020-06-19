@@ -1,30 +1,34 @@
 #include "PID.h"
 
-/**
- * TODO: Complete the PID class. You may add any additional desired functions.
- */
+#include <iostream>
 
-PID::PID() {}
+PID::PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha) : Kp_{Kp}, Ki_{Ki}, Kd_{Kd}, KiMax_{KiMax}, KLpfAlpha_{KLpfAlpha} {}
 
-PID::~PID() {}
 
-void PID::Init(double Kp_, double Ki_, double Kd_) {
-  /**
-   * TODO: Initialize PID coefficients (and errors, if needed)
-   */
-
+double PID::lpf(double newval, double oldval, double alpha) {
+  return (newval * alpha) + (oldval * (1.0 - alpha));
 }
 
-void PID::UpdateError(double cte) {
-  /**
-   * TODO: Update PID errors based on cte.
-   */
+double PID::run(double error) {
+    if (first_run_) {
+      last_error_ = error;
+      first_run_ = false;
+    }
 
-}
+    // low pass filter noisy d term
+    delta_error_ = lpf((error - last_error_), delta_error_, KLpfAlpha_);
 
-double PID::TotalError() {
-  /**
-   * TODO: Calculate and return the total error
-   */
-  return 0.0;  // TODO: Add your total error calc here!
+    integrator_ += (Ki_ * error);
+    // prevent integrator wind up
+    integrator_ = std::min(KiMax_, std::max(-KiMax_, integrator_));
+
+    double p = Kp_ * error;
+    double i = integrator_;
+    double d = Kd_ * delta_error_;
+
+    std::cout << "p = " << p << " i = " << i << " d = " << d << std::endl;
+
+    last_error_ = error;
+
+    return p + i + d;
 }

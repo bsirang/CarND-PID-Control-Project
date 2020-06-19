@@ -6,45 +6,28 @@ class PID {
   /**
    * Constructor
    */
-  PID();
-
-  /**
-   * Destructor.
-   */
-  virtual ~PID();
-
-  /**
-   * Initialize PID.
-   * @param (Kp_, Ki_, Kd_) The initial PID coefficients
-   */
-  void Init(double Kp_, double Ki_, double Kd_);
-
+  PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha);
   /**
    * Update the PID error variables given cross track error.
    * @param cte The current cross track error
    */
-  void UpdateError(double cte);
-
-  /**
-   * Calculate the total PID error.
-   * @output The total PID error
-   */
-  double TotalError();
+  double run(double error);
 
  private:
-  /**
-   * PID Errors
-   */
-  double p_error;
-  double i_error;
-  double d_error;
-
+  static double lpf(double newval, double oldval, double alpha);
   /**
    * PID Coefficients
-   */ 
-  double Kp;
-  double Ki;
-  double Kd;
+   */
+  const double Kp_;
+  const double Ki_;
+  const double Kd_;
+  const double KiMax_;
+  const double KLpfAlpha_;
+
+  double integrator_{0.0};
+  double last_error_{0.0f};
+  double delta_error_{0.0};
+  bool first_run_{true};
 };
 
 #endif  // PID_H
