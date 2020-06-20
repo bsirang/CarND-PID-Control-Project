@@ -71,9 +71,9 @@ int main() {
 
   const double Kp = 0.25;
   const double Ki = 0.0;
-  const double Kd = 1.3;
+  const double Kd = 1.5;
   const double KiLim = 0.2;
-  const double KLpfAlpha = 0.8;
+  const double KLpfAlpha = 1.0;
 
   PID pid(Kp, Ki, Kd, KiLim, KLpfAlpha);
 
@@ -106,7 +106,7 @@ int main() {
            double steer_value = desired_steer_angle_for_angular_velocity(desired_angular_velocity, speed_ms);
 
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " Speed: " << speed_ms << std::endl;
+          // std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " Speed: " << speed_ms << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
