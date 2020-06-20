@@ -13,7 +13,7 @@ double PID::lpf(double newval, double oldval, double alpha) {
 
 void PID::twiddle(double error_avg) {
   static constexpr unsigned num_params = 2;
-  static double dp[num_params] = {0.05, 0.5};
+  static double dp[num_params] = {0.03, 0.3};
   static double best_error = std::numeric_limits<double>::max();
   static unsigned current_idx = 0;
   static bool second_attempt = false;

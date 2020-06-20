@@ -69,9 +69,9 @@ static double desired_steer_angle_for_angular_velocity(double angular_velocity, 
 int main() {
   uWS::Hub h;
 
-  const double Kp = 0.25;
+  const double Kp = 0.21;
   const double Ki = 0.0;
-  const double Kd = 1.5;
+  const double Kd = 1.33914;
   const double KiLim = 0.2;
   const double KLpfAlpha = 1.0;
 
