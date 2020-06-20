@@ -4,7 +4,7 @@
 #include <limits>
 #include <cmath>
 
-PID::PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha) : Kp_{Kp}, Ki_{Ki}, Kd_{Kd}, KiMax_{KiMax}, KLpfAlpha_{KLpfAlpha} {}
+PID::PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha, double KErrorBand) : Kp_{Kp}, Ki_{Ki}, Kd_{Kd}, KiMax_{KiMax}, KLpfAlpha_{KLpfAlpha}, KErrorBand_{KErrorBand} {}
 
 
 double PID::lpf(double newval, double oldval, double alpha) {
@@ -17,6 +17,12 @@ void PID::twiddle(double error_avg) {
   static double best_error = std::numeric_limits<double>::max();
   static unsigned current_idx = 0;
   static bool second_attempt = false;
+  static bool first_twiddle = true;
+
+  if (first_twiddle) {
+    // let's skip the first invokation to give time for simulator to reach steady-state
+    first_twiddle = false;
+  }
 
   std::cout << "twiddle on param " << current_idx << " with error = " << error_avg << " and best = " << best_error << std::endl;
   std::cout << "before " << Kp_ << " " << Kd_ << " " << dp[0] << " " << dp[1] << std::endl;
@@ -63,6 +69,11 @@ double PID::run(double error) {
       first_run_ = false;
     }
 
+    if (::fabs(error) < KErrorBand_) {
+      error = 0.0;
+      last_error_ = 0.0;
+    }
+
     // low pass filter noisy d term
     delta_error_ = lpf((error - last_error_), delta_error_, KLpfAlpha_);
 
@@ -74,18 +85,14 @@ double PID::run(double error) {
     double i = integrator_;
     double d = Kd_ * delta_error_;
 
-    // std::cout << "p = " << p << " i = " << i << " d = " << d << std::endl;
+    std::cout << "p = " << p << " i = " << i << " d = " << d << std::endl;
+    // std::cout << p + i + d << std::endl;
 
     last_error_ = error;
     error_accum_ += std::fabs(error);
 
-    static bool first_twiddle = true;
-    if (++sample_num_ >= kNumTwiddleSamples) {
-      if (first_twiddle) {
-        first_twiddle = false;
-      } else {
-        twiddle(error_accum_ / kNumTwiddleSamples);
-      }
+    if (kEnableTwiddle && ++sample_num_ >= kNumTwiddleSamples) {
+      twiddle(error_accum_ / kNumTwiddleSamples);
       sample_num_ = 0;
       error_accum_ = 0.0;
     }

@@ -6,7 +6,7 @@ class PID {
   /**
    * Constructor
    */
-  PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha);
+  PID(double Kp, double Ki, double Kd, double KiMax, double KLpfAlpha, double KErrorBand);
   /**
    * Update the PID error variables given cross track error.
    * @param cte The current cross track error
@@ -15,6 +15,7 @@ class PID {
 
  private:
 
+  static constexpr bool kEnableTwiddle = false;
   static constexpr unsigned kNumTwiddleSamples = 600;
   static double lpf(double newval, double oldval, double alpha);
 
@@ -27,6 +28,7 @@ class PID {
   double Kd_;
   const double KiMax_;
   const double KLpfAlpha_;
+  const double KErrorBand_;
 
   double integrator_{0.0};
   double last_error_{0.0f};

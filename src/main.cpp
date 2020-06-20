@@ -69,13 +69,14 @@ static double desired_steer_angle_for_angular_velocity(double angular_velocity, 
 int main() {
   uWS::Hub h;
 
-  const double Kp = 0.21;
-  const double Ki = 0.0;
-  const double Kd = 1.33914;
-  const double KiLim = 0.2;
+  const double Kp = 0.22;
+  const double Ki = 0.015;
+  const double Kd = 1.49;
+  const double KiLim = 0.35;
   const double KLpfAlpha = 1.0;
+  const double KErrorBand = 0.0;
 
-  PID pid(Kp, Ki, Kd, KiLim, KLpfAlpha);
+  PID pid(Kp, Ki, Kd, KiLim, KLpfAlpha, KErrorBand);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -95,12 +96,7 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           // double angle = std::stod(j[1]["steering_angle"].get<string>());
-          /**
-           * TODO: Calculate steering value here, remember the steering value is
-           *   [-1, 1].
-           * NOTE: Feel free to play around with the throttle and speed.
-           *   Maybe use another PID controller to control the speed!
-           */
+
            double desired_angular_velocity = std::min(1.0, std::max(-1.0, pid.run(-cte)));
            double speed_ms = speed * 0.44704;
            double steer_value = desired_steer_angle_for_angular_velocity(desired_angular_velocity, speed_ms);
